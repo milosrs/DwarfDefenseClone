@@ -1,4 +1,11 @@
 #include "../Header/Character.h"
+#include "../Header/Item.h"
+#include "../Header/World.h"
+
+Character::Character(double maxHp, double hp, double dmg, double armor, std::tuple<int, int> position, std::string name, WorldObjectType objectType) :
+	maxHealth(maxHp), health(hp), damage(dmg), armor(armor), WorldObject(position, name, objectType) {
+
+};
 
 void Character::move(int cells, MoveDirection direction) {
 	switch (direction) {
@@ -10,10 +17,17 @@ void Character::move(int cells, MoveDirection direction) {
 }
 
 void Character::fight(Character& target) {
-	double damage = this->damage - target.armor;
-	target.receiveDamage(damage);
+	Item* loot = nullptr;
+
+	double damageDealt = this->damage - target.armor;
+	double damageReceived = target.damage - this->armor;
+
+	receiveDamage(damageReceived);
+	target.receiveDamage(damageDealt);
 }
 
-void Character::receiveDamage(double damage) {
+bool Character::receiveDamage(double damage) {
 	this->health -= damage;
+
+	return this->health <= 0;
 }

@@ -1,9 +1,10 @@
 #include "../Header/Item.h"
 
-Item::Item(double armorBonus, double dmgBonus, double hpBonus, ItemType itemType) : armorBonus(armorBonus), damageBonus(dmgBonus), hpBonus(hpBonus), itemType(itemType) {
+Item::Item(double armorBonus, double dmgBonus, double hpBonus, ItemType itemType, std::tuple<int, int> position, std::string name, WorldObjectType objectType) : 
+	armorBonus(armorBonus), damageBonus(dmgBonus), hpBonus(hpBonus), itemType(itemType), WorldObject(position, name, objectType) {
 }
 
-Item::Item(Item& other): armorBonus(other.armorBonus), damageBonus(other.damageBonus), hpBonus(other.hpBonus), itemType(other.itemType) {
+Item::Item(const Item& other): armorBonus(other.armorBonus), damageBonus(other.damageBonus), hpBonus(other.hpBonus), itemType(other.itemType) {
 }
 
 ItemType Item::getItemType() {

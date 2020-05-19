@@ -1,12 +1,9 @@
 #include "../Header/WorldObject.h"
 
-WorldObject::WorldObject(std::tuple<int, int> position, std::string name, WorldObjectType objectType) {
-	this->position = position;
-	this->name = name;
-	this->objectType = objectType;
+WorldObject::WorldObject(std::tuple<int, int> position, std::string name, WorldObjectType objectType): position(position), name(name), objectType(objectType) {
 }
 
-WorldObject::WorldObject(WorldObject& other) {
+WorldObject::WorldObject(const WorldObject& other) {
 	this->position = other.position;
 	this->name = other.name;
 	this->objectType = other.objectType;

@@ -1,11 +1,11 @@
 #pragma once
 enum class WorldObjectType {
-	PLAYER,
-	ENEMY,
-	WEAPON,
-	ARMOR,
-	TREASURE,
-	MOUNTAIN,
-	TREE,
-	WATER
+	PLAYER = 'P',
+	ENEMY = 'E',
+	WEAPON = 'W',
+	ARMOR = 'A',
+	TREASURE = 'T',
+	MOUNTAIN = '#',
+	TREE = '!',
+	WATER = '@'
 };

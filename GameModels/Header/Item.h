@@ -10,8 +10,8 @@ private:
 	double hpBonus;
 public:
 	Item() = default;
-	Item(double, double, double, ItemType);
-	Item(Item&);
+	Item(double, double, double, ItemType, std::tuple<int, int> position, std::string name, WorldObjectType objectType);
+	Item(const Item&);
 
 	ItemType getItemType();
 	double getArmorBonus();

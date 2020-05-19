@@ -11,11 +11,10 @@ protected:
 	std::tuple<int, int> position;
 	std::string name;
 	WorldObjectType objectType;
-
 public:
 	WorldObject() = default;
 	WorldObject(std::tuple<int, int>, std::string, WorldObjectType);
-	WorldObject(WorldObject&);
+	WorldObject(const WorldObject&);
 
 	void setPosition(std::tuple<int, int>);
 	void setName(std::string name);
