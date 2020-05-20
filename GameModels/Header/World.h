@@ -11,23 +11,23 @@
 class World{
 private:
 	std::unique_ptr<Player> player;
-	std::vector<std::unique_ptr<Character>> characters;
-	std::vector<std::shared_ptr<Item>> items;
-	std::vector<std::unique_ptr<WorldObject>> impassables;
-	const std::string possibleImpassables = "#!@";
+	std::vector<std::unique_ptr<WorldObject>> objects;
 	char** map;
 	int width;
 	int height;
 
 	void drawWorld();
 	void drawBoundaries();
-	std::shared_ptr<Item> createItem(std::tuple<int, int>, int = 0);
+	std::unique_ptr<Item> createItem(std::tuple<int, int>, int = 0);
 	std::tuple<int, int> getFirstFreeCoordinate(int, int);
 	std::tuple<int, int> generatePosition();
 public:
 	World() = default;
 	World(int, int);
 
+	void movePlayer(MoveDirection);
+	void redrawWorld();
+	bool colide(Character* character, std::vector<std::unique_ptr<WorldObject>>::iterator wo);
 	char** getMap();
 
 	friend std::ostream& operator<<(std::ostream&, World&);

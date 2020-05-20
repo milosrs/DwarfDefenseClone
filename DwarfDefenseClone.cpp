@@ -12,34 +12,31 @@
 
 using namespace std;
 
-struct Stats {
-	double dmg = (double)(std::rand() % 20 + 1);
-	double armor = (double)(std::rand() % 30 + 1);
-	double hp = (double)(std::rand() % 15 + 1);
-}typedef STATS;
-
-std::tuple<int, int> generatePosition(int w, int h) {
-	int px = rand() % w;
-	int py = rand() % h;
-
-	return std::tuple<int, int>(px, py);
-}
-
-
 int main()
 {
 	srand(time(NULL));
-	int maxWidth = 60, maxHeight = 60, minWidth = 10, minHeight = 10, range = 50;
-
+	int maxWidth = 30, maxHeight = 30, minWidth = 10, minHeight = 10, range = 20;
+	char direction = '\0';
 	int width = rand() % range + minWidth;
 	int height = rand() % range + minHeight;
 
 	std::vector<WorldObject*> wo;
 	World w(width, height);
-	
-	//Draw the world without obstacles
-	std::cout << w << std::endl;
 
+	std::cout << w << std::endl;
+	
+	while (direction != 'x') {
+		std::cout << "Move your player: ";
+		std::cin >> direction;
+
+		w.movePlayer((MoveDirection)direction);
+		
+		std::cout << std::endl;
+		std::cout << std::endl;
+		std::cout << w << std::endl;
+
+	}
+	
 	return 0;
 }
 

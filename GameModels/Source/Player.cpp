@@ -1,6 +1,6 @@
 #include "../Header/Player.h"
 
-Player::Player(std::vector<std::shared_ptr<Item>> items, double maxHp, double hp, double dmg, double armor, std::tuple<int, int> position, std::string name, WorldObjectType objectType)
+Player::Player(std::vector<std::unique_ptr<Item>> items, double maxHp, double hp, double dmg, double armor, std::tuple<int, int> position, std::string name, WorldObjectType objectType)
 	: items(items), Character(maxHp, hp, dmg, armor, position, name, objectType) {
 
 	for (const auto& i : items) {
@@ -16,13 +16,15 @@ Player::Player(std::vector<std::shared_ptr<Item>> items, double maxHp, double hp
 Player::Player(double maxHp, double hp, double dmg, double armor, std::tuple<int, int> position, std::string name, WorldObjectType objectType) : Character(maxHp, hp, dmg, armor, position, name, objectType) {
 }
 
-void Player::addNewItem(std::shared_ptr<Item> item) {
+void Player::addNewItem(std::unique_ptr<Item> item) {
 	if (item->getItemType() == ItemType::EQUIPABLE) {
 		this->armor += item->getArmorBonus();
 		this->damage += item->getDamageBonus();
 		this->maxHealth += item->getHPBonus();
 		this->health += item->getHPBonus();
 	}
+
+	items.push_back(item);
 }
 
 void Player::useConsumable(int index) {

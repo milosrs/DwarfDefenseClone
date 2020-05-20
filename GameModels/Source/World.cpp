@@ -1,5 +1,7 @@
 #include "../Header/World.h"
 
+const std::string impassables = "#!@";
+
 World::World(int n, int m): height(n), width(m) {
 	map = new char* [n];
 
@@ -26,6 +28,8 @@ std::ostream& operator<<(std::ostream& os, World& w) {
 		os << std::endl;
 	}
 
+	os << w.player.get();
+
 	return os;
 }
 
@@ -40,7 +44,7 @@ void World::drawBoundaries() {
 
 				if (shouldGenerateImpassable) {
 					int impassableIndex = rand() % 3;
-					map[i][j] = possibleImpassables[impassableIndex];
+					map[i][j] = impassables[impassableIndex];
 				}
 				else {
 					map[i][j] = ' ';
@@ -57,49 +61,115 @@ void World::drawWorld() {
 
 	for (int i = 1; i < height - 1; i++) {
 		for (int j = 1; j < width - 1; j++) {
-			bool shouldDrawPlayer = (rand() % 100 + 1) > 98 || (i == height - 2 && j == width - 2);
-			bool shouldDrawEnemy = (rand() % 100 + 1) > 94;
-			bool shouldDrawItem = (rand() % 100 + 1) > 93;
-			bool shouldGenerateImpassable = (rand() % 100 + 1) > 83;
 			std::tuple<int, int> position(j, i);
 
-			if (shouldDrawPlayer && !playerDrawn) {
-				this->player = std::make_unique<Player>(100, 100, 5, 3, position, "Rixon", WorldObjectType::PLAYER);
-				map[i][j] = (char)WorldObjectType::PLAYER;
-				playerDrawn = true;
-			}
-			else if (shouldDrawEnemy) {
-				bool hasLoot = (rand() % 50 + 1) > 65;
-				std::unique_ptr<Enemy> enemy = nullptr;
+			std::vector<std::unique_ptr<WorldObject>>::iterator it = find_if(objects.begin(),
+				objects.end(),
+				[position](std::unique_ptr<WorldObject>& wo) {return wo->getPosition()._Equals(position); });
 
-				if (hasLoot) {
-					enemy = std::make_unique<Enemy>(createItem(std::tuple<int, int>(j, i), ++itemCount), 100, 100, 5, 3, position, "Enemy " + ++enemyCount, WorldObjectType::ENEMY);
-					this->characters.push_back(std::move(enemy));
+			if (it == objects.end()) {
+				bool shouldDrawPlayer = (rand() % 100 + 1) > 98 || (i == height - 2 && j == width - 2);
+				bool shouldDrawEnemy = (rand() % 100 + 1) > 94;
+				bool shouldDrawItem = (rand() % 100 + 1) > 93;
+				bool shouldGenerateImpassable = (rand() % 100 + 1) > 83;
+
+				if (shouldDrawPlayer && !playerDrawn) {
+					this->player = std::make_unique<Player>(100, 100, 5, 3, position, "Rixon", WorldObjectType::PLAYER);
+					map[i][j] = (char)WorldObjectType::PLAYER;
+					playerDrawn = true;
+				}
+				else if (shouldDrawEnemy) {
+					bool hasLoot = (rand() % 50 + 1) > 65;
+					double maxHp = (double)(rand() % 70 + 20);
+					double maxDmg = (double)(rand() % 20 + 5);
+					double maxArmor = (double)(rand() % 15 + 0);
+					std::unique_ptr<Enemy> enemy = nullptr;
+
+					if (hasLoot) {
+						enemy = std::make_unique<Enemy>(createItem(std::tuple<int, int>(j, i), ++itemCount), maxHp, maxHp, maxDmg, maxArmor, position, "Enemy " + ++enemyCount, WorldObjectType::ENEMY);
+						this->objects.push_back(std::move(enemy));
+					}
+					else {
+						enemy = std::make_unique<Enemy>(maxHp, maxHp, maxDmg, maxArmor, position, "Enemy " + ++enemyCount, WorldObjectType::ENEMY);
+						this->objects.push_back(std::move(enemy));
+					}
+
+					map[i][j] = (char)WorldObjectType::ENEMY;
+				}
+				else if (shouldDrawItem) {
+					std::unique_ptr<Item> item = createItem(std::tuple<int, int>(j, i), ++itemCount);
+					map[i][j] = (char)item->getObjectType();
+					this->objects.push_back(std::move(item));
+				}
+				else if (shouldGenerateImpassable) {
+					std::unique_ptr<WorldObject> impassable = nullptr;
+					int impassableIndex = rand() % 3;
+					WorldObjectType type = WorldObjectType::TREE;
+
+					switch (impassableIndex) {
+					case 0: type = WorldObjectType::MOUNTAIN; break;
+					case 1: type = WorldObjectType::WATER; break;
+					default: type = WorldObjectType::TREE;
+					}
+
+					impassable = std::make_unique<WorldObject>(std::tuple<int, int>(j, i), "impassable", type);
+					objects.push_back(std::move(impassable));
+					map[i][j] = (char)type;
 				}
 				else {
-					enemy = std::make_unique<Enemy>(100, 100, 5, 3, position, "Enemy " + ++enemyCount, WorldObjectType::ENEMY);
-					this->characters.push_back(std::move(enemy));
+					map[i][j] = ' ';
 				}
-
-				map[i][j] = (char)WorldObjectType::ENEMY;
-			}
-			else if (shouldDrawItem) {
-				std::shared_ptr<Item> item = createItem(std::tuple<int, int>(j, i), ++itemCount);
-				map[i][j] = (char)item->getObjectType();
-				this->items.push_back(std::move(item));
-			}
-			else if (shouldGenerateImpassable) {
-				int impassableIndex = rand() % 3;
-				map[i][j] = possibleImpassables[impassableIndex];
-			}
-			else {
-				map[i][j] = ' ';
 			}
 		}
 	}
 }
 
-std::shared_ptr<Item> World::createItem(std::tuple<int, int> position, int itemsCount) {
+void World::movePlayer(MoveDirection direction) {
+	std::tuple<int, int> position = player->getPosition();
+	int px = std::get<0>(position), 
+		py = std::get<1>(position);
+
+	bool moved = player->move(1, direction, width, height);
+	
+	if (moved) {
+		std::tuple<int, int> newPosition = player->getPosition();
+
+		std::vector<std::unique_ptr<WorldObject>>::iterator element = find(objects.begin(),
+			objects.end(),
+			[newPosition](std::unique_ptr<WorldObject>& wo) {
+				wo->getPosition()._Equals(newPosition);
+			}
+		);
+
+		if (element != objects.end()) {
+			//colide(player.get(), element->get());
+		}
+
+		map[py][px] = ' ';
+		px = std::get<0>(player->getPosition());
+		py = std::get<1>(player->getPosition());
+		map[py][px] = (char)WorldObjectType::PLAYER;
+	}
+}
+
+/*bool World::colide(Character* character, std::vector<std::unique_ptr<WorldObject>>::iterator wo) {
+	if(wo->get()->getObjectType() == WorldObjectType::TREE || wo->get()->getObjectType() == WorldObjectType::WATER || wo->get()->getObjectType() == WorldObjectType::MOUNTAIN) {
+		return false;
+	}
+	else {
+		if (wo->get()->getObjectType() == WorldObjectType::ARMOR || wo->get()->getObjectType() == WorldObjectType::WEAPON || wo->get()->getObjectType() == WorldObjectType::CONSUMABLE) {
+			if (std::is_base_of<Character*, Enemy*>::value) {
+				return false;
+			}
+			else if (std::is_base_of<Character*, Player*>::value) {
+				std::cout << "Should somehow expand inventory" << std::endl;
+				((Player*)character)->addNewItem(std::move(objects.at(wo)));
+			}
+		}
+	}
+}*/
+
+std::unique_ptr<Item> World::createItem(std::tuple<int, int> position, int itemsCount) {
 	int itemType = (rand() % 3);
 	double armor = (double)(rand() % 15 + 1);
 	double dmg = (double)(rand() % 15 + 1);
@@ -108,9 +178,9 @@ std::shared_ptr<Item> World::createItem(std::tuple<int, int> position, int items
 	std::string itemName = "Item " + itemsCount;
 
 	switch (itemType) {
-		case 0: return std::make_shared<Item>(armor, 0, hp, ItemType::EQUIPABLE, position, itemName, WorldObjectType::ARMOR);
-		case 1: return std::make_shared<Item>(0, dmg, 0, ItemType::EQUIPABLE, position, itemName, WorldObjectType::WEAPON);
-		case 2: return std::make_shared<Item>(0, 0, hp, ItemType::CONSUMABLE, position, itemName, WorldObjectType::CONSUMABLE);
+		case 0: return std::make_unique<Item>(armor, 0, hp, ItemType::EQUIPABLE, position, itemName, WorldObjectType::ARMOR);
+		case 1: return std::make_unique<Item>(0, dmg, 0, ItemType::EQUIPABLE, position, itemName, WorldObjectType::WEAPON);
+		case 2: return std::make_unique<Item>(0, 0, hp, ItemType::CONSUMABLE, position, itemName, WorldObjectType::CONSUMABLE);
 	}
 }
 

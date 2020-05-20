@@ -13,7 +13,7 @@ public:
 	Character() = default;
 	Character(double maxHp, double hp, double dmg, double armor, std::tuple<int, int> position, std::string name, WorldObjectType objectType);
 
-	void move(int, MoveDirection);
+	bool move(int, MoveDirection, int, int);
 	void fight(Character&);
 	bool receiveDamage(double);
 };

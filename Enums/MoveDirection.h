@@ -1,7 +1,7 @@
 #pragma once
 enum class MoveDirection {
-	UP,
-	DOWN,
-	LEFT,
-	RIGHT
+	UP = 'w',
+	DOWN = 's',
+	LEFT = 'a',
+	RIGHT = 'd'
 };

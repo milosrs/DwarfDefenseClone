@@ -7,13 +7,37 @@ Character::Character(double maxHp, double hp, double dmg, double armor, std::tup
 
 };
 
-void Character::move(int cells, MoveDirection direction) {
+bool Character::move(int cells, MoveDirection direction, int width, int height) {
+	bool move = true;
+
 	switch (direction) {
-		case MoveDirection::UP: std::get<1>(this->position) += cells; break;
-		case MoveDirection::DOWN: std::get<1>(this->position) -= cells; break;
-		case MoveDirection::LEFT: std::get<0>(this->position) -= cells; break;
-		case MoveDirection::RIGHT: std::get<0>(this->position) += cells; break;
+	case MoveDirection::UP: {
+		move = std::get<1>(this->position) > 1;
+		
+		if (move)
+			std::get<1>(this->position) -= cells;
+	}; break;
+	case MoveDirection::DOWN: {
+		move = std::get<1>(this->position) < height - 2;
+		
+		if (move)
+			std::get<1>(this->position) += cells;
+	}; break;
+	case MoveDirection::LEFT: {
+		move = std::get<0>(this->position) > 1;
+
+		if (move)
+			std::get<0>(this->position) -= cells;
+	}; break;
+	case MoveDirection::RIGHT: {
+		move = std::get<0>(this->position) < width - 2;
+
+		if (move)
+			std::get<0>(this->position) += cells;
+	}; break;
 	}
+
+	return move;
 }
 
 void Character::fight(Character& target) {
