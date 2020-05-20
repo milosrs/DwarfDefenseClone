@@ -1,10 +1,6 @@
 #include "../Header/World.h"
 
-World::World(const World& other) : objects(other.objects), map(other.map), width(other.width), height(other.height) {
-	drawItemsOnMap();
-}
-
-World::World(std::vector<WorldObject*> objects, int n, int m): height(n), width(m), objects(objects) {
+World::World(int n, int m): height(n), width(m) {
 	map = new char* [n];
 
 	for (int i = 0; i < height; i++) {
@@ -12,7 +8,7 @@ World::World(std::vector<WorldObject*> objects, int n, int m): height(n), width(
 	}
 	
 	drawBoundaries();
-	drawItemsOnMap();
+	drawWorld();
 }
 
 char** World::getMap() {
@@ -33,18 +29,6 @@ std::ostream& operator<<(std::ostream& os, World& w) {
 	return os;
 }
 
-void World::drawItemsOnMap() {
-	for (WorldObject* o : objects) {
-		drawItem(o);
-	}
-}
-
-void World::addObject(WorldObject* o) {
-	this->objects.push_back(o);
-
-	drawItem(o);
-}
-
 void World::drawBoundaries() {
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++) {
@@ -56,7 +40,7 @@ void World::drawBoundaries() {
 
 				if (shouldGenerateImpassable) {
 					int impassableIndex = rand() % 3;
-					map[i][j] = impassables[impassableIndex];
+					map[i][j] = possibleImpassables[impassableIndex];
 				}
 				else {
 					map[i][j] = ' ';
@@ -66,9 +50,73 @@ void World::drawBoundaries() {
 	}
 }
 
-void World::drawItem(WorldObject* o) {
-	int px = std::get<0>(o->getPosition());
-	int py = std::get<1>(o->getPosition());
+void World::drawWorld() {
+	bool playerDrawn = false;
+	int enemyCount = 0;
+	int itemCount = 0;
+
+	for (int i = 1; i < height - 1; i++) {
+		for (int j = 1; j < width - 1; j++) {
+			bool shouldDrawPlayer = (rand() % 100 + 1) > 98 || (i == height - 2 && j == width - 2);
+			bool shouldDrawEnemy = (rand() % 100 + 1) > 94;
+			bool shouldDrawItem = (rand() % 100 + 1) > 93;
+			bool shouldGenerateImpassable = (rand() % 100 + 1) > 83;
+			std::tuple<int, int> position(j, i);
+
+			if (shouldDrawPlayer && !playerDrawn) {
+				this->player = std::make_unique<Player>(100, 100, 5, 3, position, "Rixon", WorldObjectType::PLAYER);
+				map[i][j] = (char)WorldObjectType::PLAYER;
+				playerDrawn = true;
+			}
+			else if (shouldDrawEnemy) {
+				bool hasLoot = (rand() % 50 + 1) > 65;
+				std::unique_ptr<Enemy> enemy = nullptr;
+
+				if (hasLoot) {
+					enemy = std::make_unique<Enemy>(createItem(std::tuple<int, int>(j, i), ++itemCount), 100, 100, 5, 3, position, "Enemy " + ++enemyCount, WorldObjectType::ENEMY);
+					this->characters.push_back(std::move(enemy));
+				}
+				else {
+					enemy = std::make_unique<Enemy>(100, 100, 5, 3, position, "Enemy " + ++enemyCount, WorldObjectType::ENEMY);
+					this->characters.push_back(std::move(enemy));
+				}
+
+				map[i][j] = (char)WorldObjectType::ENEMY;
+			}
+			else if (shouldDrawItem) {
+				std::shared_ptr<Item> item = createItem(std::tuple<int, int>(j, i), ++itemCount);
+				map[i][j] = (char)item->getObjectType();
+				this->items.push_back(std::move(item));
+			}
+			else if (shouldGenerateImpassable) {
+				int impassableIndex = rand() % 3;
+				map[i][j] = possibleImpassables[impassableIndex];
+			}
+			else {
+				map[i][j] = ' ';
+			}
+		}
+	}
+}
+
+std::shared_ptr<Item> World::createItem(std::tuple<int, int> position, int itemsCount) {
+	int itemType = (rand() % 3);
+	double armor = (double)(rand() % 15 + 1);
+	double dmg = (double)(rand() % 15 + 1);
+	double hp = (double)(rand() % 15 + 1);
+	WorldObjectType type;
+	std::string itemName = "Item " + itemsCount;
+
+	switch (itemType) {
+		case 0: return std::make_shared<Item>(armor, 0, hp, ItemType::EQUIPABLE, position, itemName, WorldObjectType::ARMOR);
+		case 1: return std::make_shared<Item>(0, dmg, 0, ItemType::EQUIPABLE, position, itemName, WorldObjectType::WEAPON);
+		case 2: return std::make_shared<Item>(0, 0, hp, ItemType::CONSUMABLE, position, itemName, WorldObjectType::CONSUMABLE);
+	}
+}
+
+std::tuple<int, int> World::generatePosition() {
+	int px = rand() % width;
+	int py = rand() % height;
 
 	if (px == width - 1) {
 		px -= 1;
@@ -84,7 +132,5 @@ void World::drawItem(WorldObject* o) {
 		++py;
 	}
 
-	o->setPosition(std::tuple<int, int>(px, py));
-
-	map[px][py] = (char)o->getObjectType();
+	return std::tuple<int, int>(px, py);
 }

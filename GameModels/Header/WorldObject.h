@@ -14,7 +14,6 @@ protected:
 public:
 	WorldObject() = default;
 	WorldObject(std::tuple<int, int>, std::string, WorldObjectType);
-	WorldObject(const WorldObject&);
 
 	void setPosition(std::tuple<int, int>);
 	void setName(std::string name);

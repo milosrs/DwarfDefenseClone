@@ -1,5 +1,5 @@
 #include "../Header/Enemy.h"
-Enemy::Enemy(Item* loot, double maxHp, double hp, double dmg, double armor, std::tuple<int, int> position, std::string name, WorldObjectType objectType) :
+Enemy::Enemy(std::shared_ptr<Item> loot, double maxHp, double hp, double dmg, double armor, std::tuple<int, int> position, std::string name, WorldObjectType objectType) :
 	loot(loot), Character(maxHp, hp, dmg, armor, position, name, objectType) {
 	
 	if (loot->getItemType() == ItemType::EQUIPABLE) {
@@ -10,6 +10,8 @@ Enemy::Enemy(Item* loot, double maxHp, double hp, double dmg, double armor, std:
 	}
 };
 
+Enemy::Enemy(double maxHp, double hp, double dmg, double armor, std::tuple<int, int> position, std::string name, WorldObjectType objectType):
+	Character(maxHp, hp, dmg, armor, position, name, objectType){}
 
 std::ostream& operator<<(std::ostream& os, Enemy& p) {
 	os << "******** Enemy stats ********** " << std::endl
@@ -22,6 +24,6 @@ std::ostream& operator<<(std::ostream& os, Enemy& p) {
 	return os;
 }
 
-Item* Enemy::getLoot() {
+std::shared_ptr<Item> Enemy::getLoot() {
 	return loot;
 }

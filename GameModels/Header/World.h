@@ -4,26 +4,31 @@
 #include <ostream>
 #include <tuple>
 
-#include "WorldObject.h"
+#include "../Header/WorldObject.h"
+#include "../Header/Player.h"
+#include "../Header/Enemy.h"
 
 class World{
 private:
-	std::vector<WorldObject*> objects;
-	std::string impassables = "#!@";
+	std::unique_ptr<Player> player;
+	std::vector<std::unique_ptr<Character>> characters;
+	std::vector<std::shared_ptr<Item>> items;
+	std::vector<std::unique_ptr<WorldObject>> impassables;
+	const std::string possibleImpassables = "#!@";
 	char** map;
 	int width;
 	int height;
 
-	void drawItemsOnMap();
+	void drawWorld();
 	void drawBoundaries();
-	void drawItem(WorldObject*);
+	std::shared_ptr<Item> createItem(std::tuple<int, int>, int = 0);
+	std::tuple<int, int> getFirstFreeCoordinate(int, int);
+	std::tuple<int, int> generatePosition();
 public:
 	World() = default;
-	World(std::vector<WorldObject*>, int, int);
-	World(const World&);
+	World(int, int);
 
 	char** getMap();
-	void addObject(WorldObject*);
 
 	friend std::ostream& operator<<(std::ostream&, World&);
 };

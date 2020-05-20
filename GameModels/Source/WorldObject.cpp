@@ -3,12 +3,6 @@
 WorldObject::WorldObject(std::tuple<int, int> position, std::string name, WorldObjectType objectType): position(position), name(name), objectType(objectType) {
 }
 
-WorldObject::WorldObject(const WorldObject& other) {
-	this->position = other.position;
-	this->name = other.name;
-	this->objectType = other.objectType;
-}
-
 std::tuple<int, int> WorldObject::getPosition() {
 	return this->position;
 }

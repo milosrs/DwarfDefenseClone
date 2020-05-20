@@ -1,9 +1,9 @@
 #include "../Header/Player.h"
 
-Player::Player(std::vector<Item*> items, double maxHp, double hp, double dmg, double armor, std::tuple<int, int> position, std::string name, WorldObjectType objectType) 
+Player::Player(std::vector<std::shared_ptr<Item>> items, double maxHp, double hp, double dmg, double armor, std::tuple<int, int> position, std::string name, WorldObjectType objectType)
 	: items(items), Character(maxHp, hp, dmg, armor, position, name, objectType) {
 
-	for (Item* i : items) {
+	for (const auto& i : items) {
 		if (i->getItemType() == ItemType::EQUIPABLE) {
 			this->armor += i->getArmorBonus();
 			this->damage += i->getDamageBonus();
@@ -13,12 +13,15 @@ Player::Player(std::vector<Item*> items, double maxHp, double hp, double dmg, do
 	}
 };
 
-void Player::addNewItem(Item& item) {
-	if (item.getItemType() == ItemType::EQUIPABLE) {
-		this->armor += item.getArmorBonus();
-		this->damage += item.getDamageBonus();
-		this->maxHealth += item.getHPBonus();
-		this->health += item.getHPBonus();
+Player::Player(double maxHp, double hp, double dmg, double armor, std::tuple<int, int> position, std::string name, WorldObjectType objectType) : Character(maxHp, hp, dmg, armor, position, name, objectType) {
+}
+
+void Player::addNewItem(std::shared_ptr<Item> item) {
+	if (item->getItemType() == ItemType::EQUIPABLE) {
+		this->armor += item->getArmorBonus();
+		this->damage += item->getDamageBonus();
+		this->maxHealth += item->getHPBonus();
+		this->health += item->getHPBonus();
 	}
 }
 

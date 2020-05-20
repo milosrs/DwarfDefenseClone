@@ -5,6 +5,7 @@ enum class WorldObjectType {
 	WEAPON = 'W',
 	ARMOR = 'A',
 	TREASURE = 'T',
+	CONSUMABLE = 'c',
 	MOUNTAIN = '#',
 	TREE = '!',
 	WATER = '@'
