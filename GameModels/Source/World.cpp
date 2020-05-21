@@ -28,7 +28,7 @@ std::ostream& operator<<(std::ostream& os, World& w) {
 		os << std::endl;
 	}
 
-	os << w.player.get();
+	os << *(w.player.get());
 
 	return os;
 }
@@ -65,7 +65,8 @@ void World::drawWorld() {
 
 			std::vector<std::unique_ptr<WorldObject>>::iterator it = find_if(objects.begin(),
 				objects.end(),
-				[position](std::unique_ptr<WorldObject>& wo) {return wo->getPosition()._Equals(position); });
+				[position](std::unique_ptr<WorldObject>& wo) {return wo->getPosition()._Equals(position); 
+			});
 
 			if (it == objects.end()) {
 				bool shouldDrawPlayer = (rand() % 100 + 1) > 98 || (i == height - 2 && j == width - 2);
@@ -86,7 +87,8 @@ void World::drawWorld() {
 					std::unique_ptr<Enemy> enemy = nullptr;
 
 					if (hasLoot) {
-						enemy = std::make_unique<Enemy>(createItem(std::tuple<int, int>(j, i), ++itemCount), maxHp, maxHp, maxDmg, maxArmor, position, "Enemy " + ++enemyCount, WorldObjectType::ENEMY);
+						std::unique_ptr<Item> loot = createItem(std::tuple<int, int>(j, i), ++itemCount);
+						enemy = std::make_unique<Enemy>(std::move(loot), maxHp, maxHp, maxDmg, maxArmor, position, "Enemy " + ++enemyCount, WorldObjectType::ENEMY);
 						this->objects.push_back(std::move(enemy));
 					}
 					else {
@@ -128,46 +130,88 @@ void World::movePlayer(MoveDirection direction) {
 	std::tuple<int, int> position = player->getPosition();
 	int px = std::get<0>(position), 
 		py = std::get<1>(position);
-
+	TurnResult turnResult = TurnResult::WALK;
 	bool moved = player->move(1, direction, width, height);
 	
 	if (moved) {
 		std::tuple<int, int> newPosition = player->getPosition();
 
-		std::vector<std::unique_ptr<WorldObject>>::iterator element = find(objects.begin(),
+		std::vector<std::unique_ptr<WorldObject>>::iterator element = find_if(objects.begin(),
 			objects.end(),
 			[newPosition](std::unique_ptr<WorldObject>& wo) {
-				wo->getPosition()._Equals(newPosition);
+				return wo->getPosition()._Equals(newPosition);
 			}
 		);
 
 		if (element != objects.end()) {
-			//colide(player.get(), element->get());
+			turnResult = colide(player.get(), element);
 		}
 
-		map[py][px] = ' ';
-		px = std::get<0>(player->getPosition());
-		py = std::get<1>(player->getPosition());
-		map[py][px] = (char)WorldObjectType::PLAYER;
+		if (turnResult != TurnResult::CANT_MOVE) {
+			map[py][px] = ' ';
+			px = std::get<0>(player->getPosition());
+			py = std::get<1>(player->getPosition());
+			map[py][px] = (char)WorldObjectType::PLAYER;
+		}
+		else {
+			player->setPosition(position);
+		}
 	}
 }
 
-/*bool World::colide(Character* character, std::vector<std::unique_ptr<WorldObject>>::iterator wo) {
-	if(wo->get()->getObjectType() == WorldObjectType::TREE || wo->get()->getObjectType() == WorldObjectType::WATER || wo->get()->getObjectType() == WorldObjectType::MOUNTAIN) {
-		return false;
-	}
-	else {
-		if (wo->get()->getObjectType() == WorldObjectType::ARMOR || wo->get()->getObjectType() == WorldObjectType::WEAPON || wo->get()->getObjectType() == WorldObjectType::CONSUMABLE) {
-			if (std::is_base_of<Character*, Enemy*>::value) {
-				return false;
+TurnResult World::colide(Character* character, std::vector<std::unique_ptr<WorldObject>>::iterator wo) {
+	TurnResult res = TurnResult::WALK;
+
+	if(wo != objects.end()) {
+		bool charIsPlayer = character->getObjectType() == WorldObjectType::PLAYER;
+		WorldObjectType type = wo->get()->getObjectType();
+
+		if (type == WorldObjectType::TREE || type == WorldObjectType::WATER || type == WorldObjectType::MOUNTAIN) {
+			res = TurnResult::CANT_MOVE;
+		}
+		else {
+			if (type == WorldObjectType::ARMOR || type == WorldObjectType::WEAPON || type == WorldObjectType::CONSUMABLE && charIsPlayer) {
+				std::unique_ptr<WorldObject> woPtr = std::move((*(wo)));
+				Item* item = (Item*)(woPtr.get());
+				objects.erase(wo);
+				woPtr.release();
+				player->addNewItem(std::make_unique<Item>(item));
+				res = TurnResult::ITEM_PICKUP;
 			}
-			else if (std::is_base_of<Character*, Player*>::value) {
-				std::cout << "Should somehow expand inventory" << std::endl;
-				((Player*)character)->addNewItem(std::move(objects.at(wo)));
+			else if (type == WorldObjectType::ENEMY) {
+				Enemy* enemy = (Enemy*)wo->get();
+				player->fight(enemy);
+
+				if (player->getHealth() <= 0) {
+					std::cout << "Game over!" << std::endl;
+					exit(1);
+					res = TurnResult::PLAYER_DEATH;
+				}
+
+				if (enemy->getHealth() <= 0) {
+					std::unique_ptr<Item> loot = enemy->getLoot();
+
+					if (loot != nullptr) {
+						std::cout << "Enemy has dropped some loot!" << std::endl;
+						player->addNewItem(std::move(loot));
+					}
+
+					wo->release();
+					objects.erase(wo);
+					res = TurnResult::ENEMY_DEATH;
+				}
+
+				std::cout << "Enemy hp: " << enemy->getHealth();
+
+				if (player->getHealth() > 0 && enemy->getHealth() > 0) {
+					res = TurnResult::CANT_MOVE;
+				}
 			}
 		}
 	}
-}*/
+
+	return res;
+}
 
 std::unique_ptr<Item> World::createItem(std::tuple<int, int> position, int itemsCount) {
 	int itemType = (rand() % 3);

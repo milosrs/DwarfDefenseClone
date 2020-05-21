@@ -8,7 +8,7 @@
 
 class Player : public Character {
 private:
-	std::vector<std::unique_ptr<Item>> items = { nullptr };
+	std::vector<std::unique_ptr<Item>> items;
 
 public:
 	Player() = default;

@@ -7,6 +7,7 @@
 #include "../Header/WorldObject.h"
 #include "../Header/Player.h"
 #include "../Header/Enemy.h"
+#include "../../Enums/TurnResult.h"
 
 class World{
 private:
@@ -27,7 +28,7 @@ public:
 
 	void movePlayer(MoveDirection);
 	void redrawWorld();
-	bool colide(Character* character, std::vector<std::unique_ptr<WorldObject>>::iterator wo);
+	TurnResult colide(Character* character, std::vector<std::unique_ptr<WorldObject>>::iterator wo);
 	char** getMap();
 
 	friend std::ostream& operator<<(std::ostream&, World&);

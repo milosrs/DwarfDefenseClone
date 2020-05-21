@@ -1,7 +1,7 @@
 #include "../Header/Player.h"
 
 Player::Player(std::vector<std::unique_ptr<Item>> items, double maxHp, double hp, double dmg, double armor, std::tuple<int, int> position, std::string name, WorldObjectType objectType)
-	: items(items), Character(maxHp, hp, dmg, armor, position, name, objectType) {
+	: items(std::move(items)), Character(maxHp, hp, dmg, armor, position, name, objectType) {
 
 	for (const auto& i : items) {
 		if (i->getItemType() == ItemType::EQUIPABLE) {
@@ -24,13 +24,16 @@ void Player::addNewItem(std::unique_ptr<Item> item) {
 		this->health += item->getHPBonus();
 	}
 
-	items.push_back(item);
+	std::cout << name << " acquired " << item->getName() << std::endl;
+	items.push_back(std::move(item));
 }
 
 void Player::useConsumable(int index) {
 	if (items[index]->getItemType() == ItemType::CONSUMABLE) {
+		std::cout << name << " used " << items[index]->getName() << std::endl;
+		
 		this->health += items[index]->getHPBonus();
-		items.erase(items.begin(), items.begin() + index);
+		items.erase(items.begin() + index);
 	}
 }
 
@@ -41,7 +44,11 @@ std::ostream& operator<<(std::ostream& os, Player& p) {
 		<< "Current HP: " << p.health << std::endl
 		<< "DMG: " << p.damage << std::endl
 		<< "Armor: " << p.armor << std::endl
-		<< "Item count: " << p.items.size() << std::endl;
+		<< "-----------Items------------ " << std::endl << std::endl;
+
+	for (std::unique_ptr<Item>& i : p.items) {
+		os << (*(i.get()));
+	}
 
 	return os;
 }

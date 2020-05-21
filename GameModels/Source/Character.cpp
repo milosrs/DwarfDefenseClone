@@ -40,18 +40,29 @@ bool Character::move(int cells, MoveDirection direction, int width, int height) 
 	return move;
 }
 
-void Character::fight(Character& target) {
+void Character::fight(Character* target) {
+	bool targetIsEnemy = std::is_base_of<Character*, Enemy*>::value;
 	Item* loot = nullptr;
 
-	double damageDealt = this->damage - target.armor;
-	double damageReceived = target.damage - this->armor;
+	double damageDealt = this->damage - target->armor;
+	double damageReceived = target->damage - this->armor;
+
+	if (damageDealt < 0) {
+		damageDealt = 0;
+	} 
+
+	if (damageReceived < 0) {
+		damageReceived = 0;
+	}
 
 	receiveDamage(damageReceived);
-	target.receiveDamage(damageDealt);
+	target->receiveDamage(damageDealt);
 }
 
-bool Character::receiveDamage(double damage) {
+void Character::receiveDamage(double damage) {
 	this->health -= damage;
+}
 
-	return this->health <= 0;
+double Character::getHealth() {
+	return health;
 }
