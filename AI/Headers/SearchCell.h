@@ -11,6 +11,7 @@ public:
 	float G;
 	float H;
 
+	SearchCell() = default;
 	SearchCell(int, int, char, SearchCell*);
 	float getG();
 	float getH();

@@ -1,17 +1,21 @@
 #include "../Header/World.h"
 #include "../Header/Treasure.h"
+#include "../../AI/Headers/SearchCell.h"
 
 const std::string impassables = "#!@";
 
 World::World(int n, int m, std::string playerName): height(n), width(m) {
 	map = new char* [n];
+	aiMap = new SearchCell* [n];
 
 	for (int i = 0; i < height; i++) {
 		map[i] = new char[m];
+		aiMap[i] = new SearchCell[m];
 	}
 	
 	drawBoundaries();
 	drawWorld(playerName);
+	createAIMap();
 }
 
 char** World::getMap() {
@@ -51,6 +55,17 @@ void World::drawBoundaries() {
 					map[i][j] = ' ';
 				}
 			}
+		}
+	}
+}
+
+void World::createAIMap() {
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++) {
+			aiMap[i][j].x = j;
+			aiMap[i][j].y = i;
+			aiMap[i][j].sign = map[i][j];
+			aiMap[i][j].parent = nullptr;
 		}
 	}
 }
@@ -171,6 +186,13 @@ void World::movePlayer(MoveDirection direction) {
 			player->setPosition(position);
 		}
 	}
+
+	createAIMap();
+	moveEnemies();
+}
+
+void World::moveEnemies() {
+
 }
 
 TurnResult World::colide(Character* character, std::vector<std::unique_ptr<WorldObject>>::iterator wo) {
