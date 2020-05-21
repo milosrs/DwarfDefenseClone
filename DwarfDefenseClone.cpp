@@ -1,14 +1,12 @@
 ﻿// DwarfDefenseClone.cpp : Defines the entry point for the application.
 //
 #include "DwarfDefenseClone.h"
-#include "GameModels/Header/Player.h"
-#include "GameModels/Header/Enemy.h"
-#include "GameModels/Header/Item.h"
-#include "GameModels/Header/World.h"
+#include "WorldController/Headers/WorldController.h"
 
 int main()
 {
-	
+	WorldController wc;
+
 	return 0;
 }
 

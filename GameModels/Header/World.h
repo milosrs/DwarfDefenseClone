@@ -17,14 +17,14 @@ private:
 	int width;
 	int height;
 
-	void drawWorld();
+	void drawWorld(std::string);
 	void drawBoundaries();
 	std::unique_ptr<Item> createItem(std::tuple<int, int>, int = 0);
 	std::tuple<int, int> getFirstFreeCoordinate(int, int);
 	std::tuple<int, int> generatePosition();
 public:
 	World() = default;
-	World(int, int);
+	World(int, int, std::string);
 
 	void movePlayer(MoveDirection);
 	void redrawWorld();

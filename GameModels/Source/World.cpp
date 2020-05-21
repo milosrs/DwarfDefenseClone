@@ -1,8 +1,9 @@
 #include "../Header/World.h"
+#include "../Header/Treasure.h"
 
 const std::string impassables = "#!@";
 
-World::World(int n, int m): height(n), width(m) {
+World::World(int n, int m, std::string playerName): height(n), width(m) {
 	map = new char* [n];
 
 	for (int i = 0; i < height; i++) {
@@ -10,7 +11,7 @@ World::World(int n, int m): height(n), width(m) {
 	}
 	
 	drawBoundaries();
-	drawWorld();
+	drawWorld(playerName);
 }
 
 char** World::getMap() {
@@ -54,10 +55,11 @@ void World::drawBoundaries() {
 	}
 }
 
-void World::drawWorld() {
+void World::drawWorld(std::string playerName) {
 	bool playerDrawn = false;
 	int enemyCount = 0;
 	int itemCount = 0;
+	int treasureCount = 0;
 
 	for (int i = 1; i < height - 1; i++) {
 		for (int j = 1; j < width - 1; j++) {
@@ -72,10 +74,11 @@ void World::drawWorld() {
 				bool shouldDrawPlayer = (rand() % 100 + 1) > 98 || (i == height - 2 && j == width - 2);
 				bool shouldDrawEnemy = (rand() % 100 + 1) > 94;
 				bool shouldDrawItem = (rand() % 100 + 1) > 93;
+				bool shouldDrawTreasure = (rand() % 100 + 1) > 95;
 				bool shouldGenerateImpassable = (rand() % 100 + 1) > 83;
 
 				if (shouldDrawPlayer && !playerDrawn) {
-					this->player = std::make_unique<Player>(100, 100, 5, 3, position, "Rixon", WorldObjectType::PLAYER);
+					this->player = std::make_unique<Player>(100, 100, 5, 3, position, playerName, WorldObjectType::PLAYER);
 					map[i][j] = (char)WorldObjectType::PLAYER;
 					playerDrawn = true;
 				}
@@ -88,15 +91,26 @@ void World::drawWorld() {
 
 					if (hasLoot) {
 						std::unique_ptr<Item> loot = createItem(std::tuple<int, int>(j, i), ++itemCount);
-						enemy = std::make_unique<Enemy>(std::move(loot), maxHp, maxHp, maxDmg, maxArmor, position, "Enemy " + ++enemyCount, WorldObjectType::ENEMY);
+						enemy = std::make_unique<Enemy>(std::move(loot), maxHp, maxHp, maxDmg, maxArmor, position, std::string("Enemy ").append(std::to_string(++enemyCount)), WorldObjectType::ENEMY);
 						this->objects.push_back(std::move(enemy));
 					}
 					else {
-						enemy = std::make_unique<Enemy>(maxHp, maxHp, maxDmg, maxArmor, position, "Enemy " + ++enemyCount, WorldObjectType::ENEMY);
+						enemy = std::make_unique<Enemy>(maxHp, maxHp, maxDmg, maxArmor, position, std::string("Enemy ").append(std::to_string(++enemyCount)), WorldObjectType::ENEMY);
 						this->objects.push_back(std::move(enemy));
 					}
 
 					map[i][j] = (char)WorldObjectType::ENEMY;
+				}
+				else if (shouldDrawTreasure) {
+					int treasureItems = rand() % 3 + 1;
+					std::vector<std::unique_ptr<Item>> items;
+
+					for (int i = 0; i < treasureItems; ++i) {
+						items.push_back(createItem(std::tuple<int, int>(j, i), ++itemCount));
+					}
+
+					objects.push_back(std::make_unique<Treasure>(std::move(items), std::tuple<int, int>(j, i), std::string("Treasure ").append(std::to_string(++treasureCount)), WorldObjectType::TREASURE));
+					map[i][j] = (char)WorldObjectType::TREASURE;
 				}
 				else if (shouldDrawItem) {
 					std::unique_ptr<Item> item = createItem(std::tuple<int, int>(j, i), ++itemCount);
@@ -207,6 +221,19 @@ TurnResult World::colide(Character* character, std::vector<std::unique_ptr<World
 					res = TurnResult::CANT_MOVE;
 				}
 			}
+			else if (type == WorldObjectType::TREASURE) {
+				std::unique_ptr<WorldObject> treasurePtr = std::move((*(wo)));
+				Treasure* treasure = (Treasure*)treasurePtr.get();
+				auto items = treasure->getItems();
+
+				for (const auto& t : items) {
+					player->addNewItem(std::make_unique<Item>(t.get()));
+				}
+
+				items.erase(items.begin(), items.end());
+				treasurePtr.release();
+				objects.erase(wo);
+			}
 		}
 	}
 
@@ -219,7 +246,7 @@ std::unique_ptr<Item> World::createItem(std::tuple<int, int> position, int items
 	double dmg = (double)(rand() % 15 + 1);
 	double hp = (double)(rand() % 15 + 1);
 	WorldObjectType type;
-	std::string itemName = "Item " + itemsCount;
+	std::string itemName = std::string("Item ").append(std::to_string(++itemsCount));
 
 	switch (itemType) {
 		case 0: return std::make_unique<Item>(armor, 0, hp, ItemType::EQUIPABLE, position, itemName, WorldObjectType::ARMOR);

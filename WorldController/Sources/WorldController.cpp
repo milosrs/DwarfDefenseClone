@@ -5,7 +5,12 @@ WorldController::WorldController() {
 
 	width = rand() % range + minWidth;
 	height = rand() % range + minHeight;
-	w = std::make_unique<World>();
+	std::string playerName; 
+
+	std::cout << "Whats your name, traveler? ";
+	std::cin >> playerName;
+
+	w = std::make_unique<World>(height, width, playerName);
 
 	while (direction != 'x') {
 	#if defined _WIN32
@@ -16,7 +21,7 @@ WorldController::WorldController() {
 		system("clear");
 	#endif
 		std::cout << std::flush;
-		std::cout << w << std::endl;
+		std::cout << *w.get() << std::endl;
 
 		std::cout << std::endl;
 		std::cout << std::endl;
