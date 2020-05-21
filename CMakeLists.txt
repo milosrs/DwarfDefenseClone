@@ -17,7 +17,7 @@ endif()
 #Add this projects sources
 add_executable (DwarfDefenseClone "DwarfDefenseClone.cpp" "DwarfDefenseClone.h" 
             "GameModels/Source/Player.cpp" "GameModels/Source/Item.cpp" "GameModels/Source/Enemy.cpp" "GameModels/Source/WorldObject.cpp" "GameModels/Source/Character.cpp" "GameModels/Source/World.cpp" 
-           "WorldController/Headers/WorldController.h" "WorldController/Sources/WorldController.cpp" "GameModels/Source/Treasure.cpp" "AI/Sources/AStar.cpp")
+           "WorldController/Headers/WorldController.h" "WorldController/Sources/WorldController.cpp" "GameModels/Source/Treasure.cpp" "AI/Sources/AStar.cpp" "AI/Sources/SearchCell.cpp")
 
 
 

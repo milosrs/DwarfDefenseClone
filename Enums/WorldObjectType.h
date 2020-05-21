@@ -2,6 +2,7 @@
 enum class WorldObjectType {
 	PLAYER = 'P',
 	ENEMY = 'E',
+	EMPTY = ' ',
 	WEAPON = 'W',
 	ARMOR = 'A',
 	TREASURE = 'T',
