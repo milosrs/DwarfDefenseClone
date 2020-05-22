@@ -14,11 +14,17 @@ if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
 endif()
 
+include_directories(SYSTEM ${BOOST_INCLUDE})
+
+#Add SDL to project
+#set(SDL2_DIR "Dependencies/SDL")
+#find_package(SDL2 REQUIRED)
+#include_directories(${SDL2_INCLUDE_DIRS})
+
 #Add this projects sources
 add_executable (DwarfDefenseClone "DwarfDefenseClone.cpp" "DwarfDefenseClone.h" 
             "GameModels/Source/Player.cpp" "GameModels/Source/Item.cpp" "GameModels/Source/Enemy.cpp" "GameModels/Source/WorldObject.cpp" "GameModels/Source/Character.cpp" "GameModels/Source/World.cpp" 
            "WorldController/Headers/WorldController.h" "WorldController/Sources/WorldController.cpp" "GameModels/Source/Treasure.cpp" "AI/Sources/AStar.cpp" "AI/Sources/SearchCell.cpp")
 
 
-
-include_directories(SYSTEM ${BOOST_INCLUDE})
+#target_link_libraries(SDL2Test ${SDL2_LIBRARIES})

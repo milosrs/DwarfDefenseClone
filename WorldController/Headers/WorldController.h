@@ -16,7 +16,6 @@ private:
 	int maxWidth = 30, maxHeight = 30, minWidth = 10, minHeight = 10, range = 20;
 	int width;
 	int height;
-	char direction = '\0';
 
 public:
 	WorldController();

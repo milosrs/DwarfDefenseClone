@@ -33,6 +33,7 @@ public:
 	void movePlayer(MoveDirection);
 	void moveEnemies();
 	void redrawWorld();
+	void useConsumable(int index);
 	TurnResult colide(Character* character, std::vector<std::unique_ptr<WorldObject>>::iterator wo);
 	char** getMap();
 

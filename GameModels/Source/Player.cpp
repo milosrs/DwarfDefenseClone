@@ -29,11 +29,13 @@ void Player::addNewItem(std::unique_ptr<Item> item) {
 }
 
 void Player::useConsumable(int index) {
-	if (items[index]->getItemType() == ItemType::CONSUMABLE) {
-		turnStatus.append(name).append(" used ").append(items[index]->getName()).append("\n");
-		
-		this->health += items[index]->getHPBonus();
-		items.erase(items.begin() + index);
+	if (items.size() > index - 1) {
+		if (items[index - 1]->getItemType() == ItemType::CONSUMABLE) {
+			turnStatus.append(name).append(" used ").append(items[index - 1]->getName()).append("\n");
+
+			this->health += items[index - 1]->getHPBonus();
+			items.erase(items.begin() + index - 1);
+		}
 	}
 }
 

@@ -356,3 +356,7 @@ std::tuple<int, int> World::generatePosition() {
 
 	return std::tuple<int, int>(px, py);
 }
+
+void World::useConsumable(int index) {
+	player->useConsumable(index);
+}
