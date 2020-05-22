@@ -9,7 +9,6 @@
 class Player : public Character {
 private:
 	std::vector<std::unique_ptr<Item>> items;
-
 public:
 	Player() = default;
 	Player(std::vector<std::unique_ptr<Item>> items, double maxHp, double hp, double dmg, double armor, std::tuple<int, int> position, std::string name, WorldObjectType objectType);

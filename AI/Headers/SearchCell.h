@@ -1,6 +1,7 @@
 #pragma once
 #include <math.h>
 #include <tuple>
+#include <memory>
 #include "../../Enums/WorldObjectType.h"
 
 class SearchCell {
@@ -12,7 +13,7 @@ public:
 	float H;
 
 	SearchCell() = default;
-	SearchCell(int, int, char, SearchCell*);
+	SearchCell(int, int, char, std::shared_ptr<SearchCell>);
 	float getG();
 	float getH();
 	float getF();

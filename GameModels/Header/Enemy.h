@@ -13,6 +13,7 @@ public:
 	Enemy(double maxHp, double hp, double dmg, double armor, std::tuple<int, int> position, std::string name, WorldObjectType objectType);
 
 	friend std::ostream& operator<<(std::ostream&, Enemy&);
+	std::string toString(Enemy&);
 
 	std::unique_ptr<Item> getLoot();
 };

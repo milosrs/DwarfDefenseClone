@@ -24,13 +24,13 @@ void Player::addNewItem(std::unique_ptr<Item> item) {
 		this->health += item->getHPBonus();
 	}
 
-	std::cout << name << " acquired " << item->getName() << std::endl;
+	turnStatus.append(name).append(" acquired ").append(item->getName()).append("\n");
 	items.push_back(std::move(item));
 }
 
 void Player::useConsumable(int index) {
 	if (items[index]->getItemType() == ItemType::CONSUMABLE) {
-		std::cout << name << " used " << items[index]->getName() << std::endl;
+		turnStatus.append(name).append(" used ").append(items[index]->getName()).append("\n");
 		
 		this->health += items[index]->getHPBonus();
 		items.erase(items.begin() + index);
@@ -44,11 +44,14 @@ std::ostream& operator<<(std::ostream& os, Player& p) {
 		<< "Current HP: " << p.health << std::endl
 		<< "DMG: " << p.damage << std::endl
 		<< "Armor: " << p.armor << std::endl
-		<< "-----------Items------------ " << std::endl << std::endl;
+		<< "-----------Items------------ " << std::endl << std::endl
+		<< std::endl << p.turnStatus << std::endl;
 
 	for (std::unique_ptr<Item>& i : p.items) {
 		os << (*(i.get()));
 	}
+
+	p.turnStatus = "";
 
 	return os;
 }

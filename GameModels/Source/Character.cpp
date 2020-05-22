@@ -4,7 +4,6 @@
 
 Character::Character(double maxHp, double hp, double dmg, double armor, std::tuple<int, int> position, std::string name, WorldObjectType objectType) :
 	maxHealth(maxHp), health(hp), damage(dmg), armor(armor), WorldObject(position, name, objectType) {
-
 };
 
 bool Character::move(int cells, MoveDirection direction, int width, int height) {
@@ -57,6 +56,15 @@ void Character::fight(Character* target) {
 
 	receiveDamage(damageReceived);
 	target->receiveDamage(damageDealt);
+
+	if (target->getObjectType() == WorldObjectType::ENEMY) {
+		turnStatus.append("Enemy ").append(target->getName()).append(" received ").append(std::to_string(damageDealt)).append(" damage. \n")
+			.append(this->name).append(" received ").append(std::to_string(damageReceived)).append(" damage. \n");
+	}
+	else {
+		target->setCombatStatus(turnStatus.append("Enemy ").append(target->getName()).append(" received ").append(std::to_string(damageReceived)).append("damage. \n")
+			.append(this->name).append(" received ").append(std::to_string(damageDealt)).append("damage. \n"));
+	}
 }
 
 void Character::receiveDamage(double damage) {
@@ -65,4 +73,12 @@ void Character::receiveDamage(double damage) {
 
 double Character::getHealth() {
 	return health;
+}
+
+std::string Character::getTurnStatus() {
+	return turnStatus;
+}
+
+void Character::setCombatStatus(std::string status) {
+	this->turnStatus = status;
 }

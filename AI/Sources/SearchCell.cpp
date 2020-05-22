@@ -1,7 +1,7 @@
 #include "../Headers/SearchCell.h"
 #include <boost/functional/hash.hpp>
 
-SearchCell::SearchCell(int x, int y, char sign, SearchCell* parent) : x(x), y(y), sign(sign), parent(parent), G(0), H(0) {}
+SearchCell::SearchCell(int x, int y, char sign, std::shared_ptr<SearchCell> parent) : x(x), y(y), sign(sign), parent(parent), G(0), H(0) {}
 
 float SearchCell::getF() {
 	return G + H;

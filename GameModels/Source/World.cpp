@@ -155,6 +155,7 @@ void World::drawWorld(std::string playerName) {
 	}
 }
 
+//I know this is the method I should use to move enemies and player but I had to hurry up :D
 void World::movePlayer(MoveDirection direction) {
 	std::tuple<int, int> position = player->getPosition();
 	int px = std::get<0>(position), 
@@ -180,19 +181,77 @@ void World::movePlayer(MoveDirection direction) {
 			map[py][px] = ' ';
 			px = std::get<0>(player->getPosition());
 			py = std::get<1>(player->getPosition());
-			map[py][px] = (char)WorldObjectType::PLAYER;
+			map[py][px] = (char)player->getObjectType();
+			player->setPosition(newPosition);
 		}
 		else {
+			//reset the position
 			player->setPosition(position);
 		}
 	}
 
 	createAIMap();
-	moveEnemies();
 }
 
 void World::moveEnemies() {
+	int enemyIndex = 0;
 
+	for (std::unique_ptr<WorldObject>& wo : objects) {
+		if (wo->getObjectType() == WorldObjectType::ENEMY) {
+			int dirNo = rand() % 4;
+			MoveDirection direction = MoveDirection::DOWN;
+
+			switch (dirNo) {
+			case 0: direction = MoveDirection::DOWN; break;
+			case 1: direction = MoveDirection::LEFT; break;
+			case 2: direction = MoveDirection::RIGHT; break;
+			case 3: direction = MoveDirection::UP; break;
+			}
+
+			/*Yep....ugly*/
+			std::tuple<int, int> position = wo->getPosition();
+			int px = std::get<0>(position),
+				py = std::get<1>(position);
+			TurnResult turnResult = TurnResult::WALK;
+			bool moved = ((std::unique_ptr<Enemy>&)wo)->move(1, direction, width, height);
+
+			if (moved) {
+				std::tuple<int, int> newPosition = wo->getPosition();
+				std::string currentEnemyName = wo->getName();
+				
+				std::vector<std::unique_ptr<WorldObject>>::iterator element = find_if(objects.begin(),
+					objects.end(),
+					[newPosition, currentEnemyName](std::unique_ptr<WorldObject>& obj) {
+						return obj->getPosition()._Equals(newPosition) && !obj->getName()._Equal(currentEnemyName);
+					}
+				);
+
+				if (element == objects.end()) {
+					if (wo->getPosition()._Equals(player->getPosition())) {
+						turnResult = colide(player.get(), objects.begin() + enemyIndex);
+					}
+
+					if (turnResult != TurnResult::CANT_MOVE) {
+						map[py][px] = ' ';
+						px = std::get<0>(wo->getPosition());
+						py = std::get<1>(wo->getPosition());
+						map[py][px] = (char)wo->getObjectType();
+						wo->setPosition(newPosition);
+					}
+					else {
+						//reset the position
+						wo->setPosition(position);
+					}
+				}
+				else {
+					//reset the position
+					wo->setPosition(position);
+				}
+			}
+		}
+
+		++enemyIndex;
+	}
 }
 
 TurnResult World::colide(Character* character, std::vector<std::unique_ptr<WorldObject>>::iterator wo) {
@@ -205,7 +264,7 @@ TurnResult World::colide(Character* character, std::vector<std::unique_ptr<World
 		if (type == WorldObjectType::TREE || type == WorldObjectType::WATER || type == WorldObjectType::MOUNTAIN) {
 			res = TurnResult::CANT_MOVE;
 		}
-		else {
+		else if(charIsPlayer) {
 			if (type == WorldObjectType::ARMOR || type == WorldObjectType::WEAPON || type == WorldObjectType::CONSUMABLE && charIsPlayer) {
 				std::unique_ptr<WorldObject> woPtr = std::move((*(wo)));
 				Item* item = (Item*)(woPtr.get());
@@ -228,7 +287,6 @@ TurnResult World::colide(Character* character, std::vector<std::unique_ptr<World
 					std::unique_ptr<Item> loot = enemy->getLoot();
 
 					if (loot != nullptr) {
-						std::cout << "Enemy has dropped some loot!" << std::endl;
 						player->addNewItem(std::move(loot));
 					}
 
@@ -236,8 +294,6 @@ TurnResult World::colide(Character* character, std::vector<std::unique_ptr<World
 					objects.erase(wo);
 					res = TurnResult::ENEMY_DEATH;
 				}
-
-				std::cout << "Enemy hp: " << enemy->getHealth();
 
 				if (player->getHealth() > 0 && enemy->getHealth() > 0) {
 					res = TurnResult::CANT_MOVE;
@@ -256,6 +312,9 @@ TurnResult World::colide(Character* character, std::vector<std::unique_ptr<World
 				treasurePtr.release();
 				objects.erase(wo);
 			}
+		}
+		else {
+			res = TurnResult::CANT_MOVE;
 		}
 	}
 

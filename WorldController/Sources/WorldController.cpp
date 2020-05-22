@@ -27,6 +27,7 @@ WorldController::WorldController() {
 		std::cout << std::endl;
 		std::cin >> direction;
 		w->movePlayer((MoveDirection)direction);
+		w->moveEnemies();
 	}
 }
 

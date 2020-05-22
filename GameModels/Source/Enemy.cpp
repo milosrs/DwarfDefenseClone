@@ -27,3 +27,14 @@ std::ostream& operator<<(std::ostream& os, Enemy& p) {
 std::unique_ptr<Item> Enemy::getLoot() {
 	return std::move(loot);
 }
+
+std::string Enemy::toString(Enemy& p) {
+	std::string ret = std::string("******** Enemy stats ********** ").append("\n")
+		.append("Name: ").append(p.name).append("\n")
+		.append("Max HP: ").append(std::to_string(p.maxHealth)).append("\n")
+		.append("Current HP: ").append(std::to_string(p.health)) .append("\n")
+		.append("DMG: ").append(std::to_string(p.damage)).append("\n")
+		.append("Armor: ").append(std::to_string(p.armor)).append("\n");
+
+	return ret;
+}
