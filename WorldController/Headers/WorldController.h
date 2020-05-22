@@ -17,8 +17,10 @@ private:
 	int width;
 	int height;
 
+	void initDriver();
 public:
 	WorldController();
+	~WorldController();
 
 	friend std::ostream& operator<<(std::ostream&, WorldController&);
 };
