@@ -1,7 +1,6 @@
 #pragma once
 #include <ostream>
 #include <memory>
-#include <boost/signals2.hpp>
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
@@ -11,7 +10,6 @@
 
 #include "../../GameModels/Header/World.h"
 
-using namespace boost::signals2;
 
 class WorldController {
 private:

@@ -82,8 +82,6 @@ WorldController::WorldController() {
 #endif
 }
 
-
-
 std::ostream& operator<<(std::ostream& os, WorldController& w) {
 	return os;
 }
