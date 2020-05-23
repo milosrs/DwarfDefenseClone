@@ -1,6 +1,21 @@
 #include "../Header/World.h"
 #include "../Header/Treasure.h"
 #include "../../AI/Headers/SearchCell.h"
+#include "../../Dependencies/rlutil.h"
+
+void SelectColor(char object) {
+	switch ((WorldObjectType)object) {
+	case WorldObjectType::ARMOR: rlutil::setColor(rlutil::WHITE); break;
+	case WorldObjectType::WEAPON: rlutil::setColor(rlutil::YELLOW); break;
+	case WorldObjectType::CONSUMABLE: rlutil::setColor(rlutil::MAGENTA); break;
+	case WorldObjectType::ENEMY: rlutil::setColor(rlutil::LIGHTRED); break;
+	case WorldObjectType::PLAYER: rlutil::setColor(rlutil::GREEN); break;
+	case WorldObjectType::TREASURE:rlutil::setColor(rlutil::BROWN); break;
+	default: rlutil::setColor(rlutil::GREY);
+	};
+
+	rlutil::setBackgroundColor(rlutil::BLACK);
+}
 
 const std::string impassables = "#!@";
 
@@ -27,6 +42,7 @@ std::ostream& operator<<(std::ostream& os, World& w) {
 
 	for (int i = 0; i < w.height; i++) {
 		for (int j = 0; j < w.width; j++) {
+			SelectColor(w.map[i][j]);
 			os << w.map[i][j];
 		}
 
@@ -193,6 +209,17 @@ void World::movePlayer(MoveDirection direction) {
 	createAIMap();
 }
 
+void World::deleteDeadEnemies() {
+	objects.erase(std::remove_if(
+		objects.begin(), 
+		objects.end(), 
+		[](std::unique_ptr<WorldObject>& wo) {
+			return wo->getObjectType() == WorldObjectType::ENEMY && ((std::unique_ptr<Enemy>&)wo)->getHealth() <= 0;
+		}),
+		objects.end()
+	);
+}
+
 void World::moveEnemies() {
 	int enemyIndex = 0;
 
@@ -290,8 +317,6 @@ TurnResult World::colide(Character* character, std::vector<std::unique_ptr<World
 						player->addNewItem(std::move(loot));
 					}
 
-					wo->release();
-					objects.erase(wo);
 					res = TurnResult::ENEMY_DEATH;
 				}
 

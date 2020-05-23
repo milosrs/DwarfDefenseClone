@@ -4,6 +4,7 @@
 #include <ostream>
 #include <tuple>
 
+
 #include "../Header/WorldObject.h"
 #include "../Header/Player.h"
 #include "../Header/Enemy.h"
@@ -32,6 +33,7 @@ public:
 
 	void movePlayer(MoveDirection);
 	void moveEnemies();
+	void deleteDeadEnemies();
 	void redrawWorld();
 	void useConsumable(int index);
 	TurnResult colide(Character* character, std::vector<std::unique_ptr<WorldObject>>::iterator wo);

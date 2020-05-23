@@ -5,6 +5,9 @@
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#if defined _WIN32
+#include <Windows.h>
+#endif
 
 #include "../../GameModels/Header/World.h"
 
@@ -17,10 +20,13 @@ private:
 	int width;
 	int height;
 
-	void initDriver();
+#if defined _WIN32
+	VOID setup();
+	VOID ErrorExit(LPSTR lpszMessage);
+#endif
+
 public:
 	WorldController();
-	~WorldController();
 
 	friend std::ostream& operator<<(std::ostream&, WorldController&);
 };
