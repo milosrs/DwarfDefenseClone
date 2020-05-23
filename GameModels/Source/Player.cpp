@@ -57,3 +57,11 @@ std::ostream& operator<<(std::ostream& os, Player& p) {
 
 	return os;
 }
+
+std::ofstream& operator<<(std::ofstream& os, Player& wo) {
+	for (std::unique_ptr<Item>& i : wo.items) {
+		os << *(i.get());
+	}
+
+	return os;
+}

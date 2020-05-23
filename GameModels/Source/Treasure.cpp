@@ -8,3 +8,11 @@ Treasure::Treasure(std::vector<std::unique_ptr<Item>> items, std::tuple<int, int
 std::vector<std::unique_ptr<Item>> Treasure::getItems() {
 	return std::move(items);
 }
+
+std::ofstream& operator<<(std::ofstream& os, Treasure& wo) {
+	for (std::unique_ptr<Item>& i : wo.items) {
+		os << *(i.get());
+	}
+
+	return os;
+}

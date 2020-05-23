@@ -21,4 +21,5 @@ public:
 	void setCombatStatus(std::string);
 
 	double getHealth();
+	friend std::ofstream& operator<<(std::ofstream&, Character&);
 };

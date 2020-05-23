@@ -3,7 +3,8 @@
 #include <memory>
 #include <ostream>
 #include <tuple>
-
+#include <iostream>
+#include <fstream>
 
 #include "../Header/WorldObject.h"
 #include "../Header/Player.h"
@@ -40,4 +41,5 @@ public:
 	char** getMap();
 
 	friend std::ostream& operator<<(std::ostream&, World&);
+	friend std::ofstream& operator<<(std::ofstream&, World&);
 };

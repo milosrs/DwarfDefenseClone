@@ -385,3 +385,28 @@ std::tuple<int, int> World::generatePosition() {
 void World::useConsumable(int index) {
 	player->useConsumable(index);
 }
+
+std::ofstream& operator<<(std::ofstream& os, World& wo) {
+	os << wo.width;
+	os << " ";
+	os << wo.height;
+	os << " ";
+	for (int i = 1; i < wo.height - 1; i++) {
+		for (int j = 1; j < wo.width - 1; j++) {
+			os << wo.map[i][j];
+		}
+	}
+	os << " ";
+	os << *(wo.player.get());
+	os << " ";
+	
+	for (std::unique_ptr<WorldObject>& o : wo.objects) {
+		switch (o->getObjectType()) {
+		case WorldObjectType::ARMOR:
+		case WorldObjectType::CONSUMABLE:
+		case WorldObjectType::WEAPON: os << (Item) * ((Item*)((o.get()))); break;
+		}
+	}
+
+	return os;
+}

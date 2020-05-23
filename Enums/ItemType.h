@@ -1,5 +1,5 @@
 #pragma once
 enum class ItemType {
-	CONSUMABLE,
+	CONSUMABLE = 0,
 	EQUIPABLE
 };

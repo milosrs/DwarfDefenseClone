@@ -1,4 +1,7 @@
 #include "../Header/WorldObject.h"
+#include "../../Dependencies/rapidjson/writer.h"
+#include <iostream>
+#include <fstream>
 
 WorldObject::WorldObject(std::tuple<int, int> position, std::string name, WorldObjectType objectType): position(position), name(name), objectType(objectType) {
 }
@@ -25,4 +28,17 @@ void WorldObject::setName(std::string name) {
 
 void WorldObject::setObjectType(WorldObjectType objectType) {
 	this->objectType = objectType;
+}
+
+std::ofstream& operator<<(std::ofstream& os, WorldObject& wo) {
+	os << wo.name;
+	os << " ";
+	os << (char)wo.objectType;
+	os << " ";
+	os << std::get<0>(wo.position);
+	os << " ";
+	os << std::get<1>(wo.position);
+	os << std::endl;
+
+	return os;
 }

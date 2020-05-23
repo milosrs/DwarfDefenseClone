@@ -22,4 +22,6 @@ public:
 	std::tuple<int, int> getPosition();
 	std::string getName();
 	WorldObjectType getObjectType();
+
+	friend std::ofstream& operator<<(std::ofstream&, WorldObject&);
 };

@@ -38,3 +38,9 @@ std::string Enemy::toString(Enemy& p) {
 
 	return ret;
 }
+
+std::ofstream& operator<<(std::ofstream& os, Enemy& wo) {
+	os << *(wo.loot.get());
+
+	return os;
+}

@@ -1,5 +1,7 @@
 #pragma once
 #include <ostream>
+#include <iostream>
+#include <fstream>
 
 #include "Character.h"
 #include "Item.h"
@@ -16,4 +18,5 @@ public:
 	std::string toString(Enemy&);
 
 	std::unique_ptr<Item> getLoot();
+	friend std::ofstream& operator<<(std::ofstream&, Enemy&);
 };

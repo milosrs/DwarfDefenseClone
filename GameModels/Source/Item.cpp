@@ -35,3 +35,16 @@ std::ostream& operator<<(std::ostream& os, Item& i) {
 
 	return os;
 }
+
+std::ofstream& operator<<(std::ofstream& os, Item& wo) {
+	os << wo.armorBonus;
+	os << " ";
+	os << wo.damageBonus;
+	os << " ";
+	os << wo.hpBonus;
+	os << " ";
+	os << (int)wo.itemType;
+	os << std::endl;
+
+	return os;
+}

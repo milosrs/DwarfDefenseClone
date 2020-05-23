@@ -2,6 +2,8 @@
 #include <vector>
 #include <ostream>
 #include <memory>
+#include <iostream>
+#include <fstream>
 
 #include "Character.h"
 #include "Item.h"
@@ -18,4 +20,5 @@ public:
 	void useConsumable(int);
 
 	friend std::ostream& operator<<(std::ostream&, Player&);
+	friend std::ofstream& operator<<(std::ofstream&, Player&);
 };

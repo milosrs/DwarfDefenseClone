@@ -1,6 +1,8 @@
 #include "../Header/Character.h"
 #include "../Header/Item.h"
 #include "../Header/World.h"
+#include <iostream>
+#include <fstream>
 
 Character::Character(double maxHp, double hp, double dmg, double armor, std::tuple<int, int> position, std::string name, WorldObjectType objectType) :
 	maxHealth(maxHp), health(hp), damage(dmg), armor(armor), WorldObject(position, name, objectType) {
@@ -81,4 +83,17 @@ std::string Character::getTurnStatus() {
 
 void Character::setCombatStatus(std::string status) {
 	this->turnStatus = status;
+}
+
+std::ofstream& operator<<(std::ofstream& os, Character& wo) {
+	os << wo.armor;
+	os << " ";
+	os << (char)wo.damage;
+	os << " ";
+	os << wo.health;
+	os << " ";
+	os << wo.maxHealth;
+	os << std::endl;
+
+	return os;
 }

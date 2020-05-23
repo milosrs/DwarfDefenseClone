@@ -1,6 +1,8 @@
 #pragma once
 #include "WorldObject.h"
 #include "../../Enums/ItemType.h"
+#include <iostream>
+#include <fstream>
 
 class Item : public WorldObject {
 private:
@@ -19,4 +21,5 @@ public:
 	double getHPBonus();
 
 	friend std::ostream& operator<<(std::ostream&, Item&);
+	friend std::ofstream& operator<<(std::ofstream&, Item&);
 };
