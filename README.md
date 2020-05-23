@@ -11,7 +11,7 @@ How to build:
 
 - Change MyPathToBoostFolder to path where you installed Boost. Check my CMakeList.txt for an example.
 
-![Gameplay](https://imgur.com/h09oJVj)
+![Gameplay](gameplay.jpg)
 
 How to play:
 - You are P(Green)
